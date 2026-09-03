@@ -37,10 +37,11 @@ require("pointer").setup({
     style = "box",
     blend = 0.12,
     bar = "▎",
+    colors = { note = "DiagnosticInfo", warn = "DiagnosticWarn" },
 })
 ```
 
-Colors derive from `Normal`, `DiagnosticInfo` and `DiagnosticWarn`. Override any `Pointer{Note,Warn}{Line,Sign,Number,CardBar,CardText,Chip,Border,BoxText,Eol,LoudBar,LoudText}` group to change them.
+`colors` take a highlight group name or a hex string. Everything else derives from them and `Normal`. Set your own `Pointer*` groups on `ColorScheme` if you need finer control. Override any `Pointer{Note,Warn}{Line,Sign,Number,CardBar,CardText,Chip,Border,BoxText,Eol,LoudBar,LoudText}` group to change them.
 
 ## MCP tools
 

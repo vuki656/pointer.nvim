@@ -9,6 +9,10 @@ local defaults = {
     blend = 0.12,
     bar = "▎",
     style = "box",
+    colors = {
+        note = "DiagnosticInfo",
+        warn = "DiagnosticWarn",
+    },
 }
 
 local styles = { "chip", "box", "eol", "float", "loud" }
@@ -44,13 +48,21 @@ local function blend(fg, bg, alpha)
     return bit.bor(bit.lshift(channel(16), 16), bit.lshift(channel(8), 8), channel(0))
 end
 
+local function resolve_color(value, fallback)
+    if type(value) == "string" and value:match("^#%x%x%x%x%x%x$") then
+        return tonumber(value:sub(2), 16)
+    end
+
+    return get_color(value, "fg") or fallback
+end
+
 local function set_colors()
     local normal_bg = get_color("Normal", "bg") or 0x000000
     local normal_fg = get_color("Normal", "fg") or 0xffffff
 
     local kinds = {
-        Note = get_color("DiagnosticInfo", "fg") or 0x569cd6,
-        Warn = get_color("DiagnosticWarn", "fg") or 0xd7ba7d,
+        Note = resolve_color(config.colors.note, 0x569cd6),
+        Warn = resolve_color(config.colors.warn, 0xd7ba7d),
     }
 
     for name, fg in pairs(kinds) do
@@ -60,17 +72,17 @@ local function set_colors()
         local loud_bg = blend(fg, normal_bg, 0.3)
         local prefix = "Pointer" .. name
 
-        vim.api.nvim_set_hl(0, prefix .. "Line", { bg = line_bg, default = true })
-        vim.api.nvim_set_hl(0, prefix .. "Sign", { fg = fg, bg = line_bg, bold = true, default = true })
-        vim.api.nvim_set_hl(0, prefix .. "Number", { fg = fg, bg = line_bg, bold = true, default = true })
-        vim.api.nvim_set_hl(0, prefix .. "CardBar", { fg = fg, bg = card_bg, bold = true, default = true })
-        vim.api.nvim_set_hl(0, prefix .. "CardText", { fg = card_fg, bg = card_bg, default = true })
-        vim.api.nvim_set_hl(0, prefix .. "Chip", { fg = normal_bg, bg = fg, bold = true, default = true })
-        vim.api.nvim_set_hl(0, prefix .. "Border", { fg = fg, default = true })
-        vim.api.nvim_set_hl(0, prefix .. "BoxText", { fg = blend(normal_fg, normal_bg, 0.8), default = true })
-        vim.api.nvim_set_hl(0, prefix .. "Eol", { fg = fg, italic = true, default = true })
-        vim.api.nvim_set_hl(0, prefix .. "LoudBar", { fg = fg, bg = loud_bg, bold = true, default = true })
-        vim.api.nvim_set_hl(0, prefix .. "LoudText", { fg = fg, bg = loud_bg, default = true })
+        vim.api.nvim_set_hl(0, prefix .. "Line", { bg = line_bg })
+        vim.api.nvim_set_hl(0, prefix .. "Sign", { fg = fg, bg = line_bg, bold = true })
+        vim.api.nvim_set_hl(0, prefix .. "Number", { fg = fg, bg = line_bg, bold = true })
+        vim.api.nvim_set_hl(0, prefix .. "CardBar", { fg = fg, bg = card_bg, bold = true })
+        vim.api.nvim_set_hl(0, prefix .. "CardText", { fg = card_fg, bg = card_bg })
+        vim.api.nvim_set_hl(0, prefix .. "Chip", { fg = normal_bg, bg = fg, bold = true })
+        vim.api.nvim_set_hl(0, prefix .. "Border", { fg = fg })
+        vim.api.nvim_set_hl(0, prefix .. "BoxText", { fg = blend(normal_fg, normal_bg, 0.8) })
+        vim.api.nvim_set_hl(0, prefix .. "Eol", { fg = fg, italic = true })
+        vim.api.nvim_set_hl(0, prefix .. "LoudBar", { fg = fg, bg = loud_bg, bold = true })
+        vim.api.nvim_set_hl(0, prefix .. "LoudText", { fg = fg, bg = loud_bg })
     end
 end
 
@@ -724,7 +736,7 @@ function M.rpc(payload)
 end
 
 function M.setup(opts)
-    config = vim.tbl_extend("force", defaults, opts or {})
+    config = vim.tbl_deep_extend("force", defaults, opts or {})
     configured = true
 
     if not vim.tbl_contains(styles, config.style) then
