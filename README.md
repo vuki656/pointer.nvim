@@ -35,11 +35,14 @@ Claude picks it up from the tool descriptions. Nudge it with "point at it" if it
 require("pointer").setup({
     keymaps = true,
     style = "box",
+    quickfix = true,
     blend = 0.12,
     bar = "▎",
     colors = { note = "DiagnosticInfo", warn = "DiagnosticWarn" },
 })
 ```
+
+`quickfix` opens the quickfix list with every point when Claude adds new ones. The cursor lands on the first new point in the code window.
 
 `colors` take a highlight group name or a hex string. Everything else derives from them and `Normal`. Set your own `Pointer*` groups on `ColorScheme` if you need finer control. Override any `Pointer{Note,Warn}{Line,Sign,Number,CardBar,CardText,Chip,Border,BoxText,Eol,LoudBar,LoudText}` group to change them.
 

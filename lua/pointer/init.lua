@@ -9,6 +9,7 @@ local defaults = {
     blend = 0.12,
     bar = "▎",
     style = "box",
+    quickfix = true,
     colors = {
         note = "DiagnosticInfo",
         warn = "DiagnosticWarn",
@@ -589,7 +590,13 @@ function M.point(list, should_focus)
     end
 
     if should_focus ~= false and #ids > 0 then
-        focus(points[#points - #ids + 1])
+        local first = #points - #ids + 1
+
+        if config.quickfix then
+            M.qf(first)
+        end
+
+        focus(points[first])
     end
 
     return ids
@@ -660,7 +667,7 @@ function M.list()
     return result
 end
 
-function M.qf()
+function M.qf(index)
     local items = {}
 
     for _, point in ipairs(M.list()) do
@@ -671,7 +678,7 @@ function M.qf()
         })
     end
 
-    vim.fn.setqflist({}, " ", { title = "Pointer", items = items })
+    vim.fn.setqflist({}, " ", { title = "Pointer", items = items, idx = index or 1 })
     vim.cmd.copen()
 end
 
